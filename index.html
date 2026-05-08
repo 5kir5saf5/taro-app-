@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таро Уэйта</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background: #0f0f0f; color: #ffd700; text-align: center; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .card-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
+        .card { width: 70px; height: 110px; border: 2px solid #ffd700; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.3s; background: #1a1a1a; }
+        .card.selected { background: #ffd700; color: #000; transform: scale(1.1); }
+        input { width: 90%; padding: 12px; margin: 20px 0; border-radius: 5px; border: 1px solid #ffd700; background: #222; color: #fff; }
+        button { background: #ffd700; color: #000; border: none; padding: 15px 30px; font-weight: bold; border-radius: 25px; width: 100%; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>🔮 Гадание Таро</h2>
+    <input type="text" id="question" placeholder="Введите ваш вопрос...">
+    <p>Выберите 3 карты:</p>
+    <div class="card-container" id="deck"></div>
+    <br>
+    <button onclick="sendResult()">Узнать трактовку</button>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        let selected = [];
+        const cards = ['Шут', 'Маг', 'Жрица', 'Императрица', 'Император', 'Жрец', 'Влюбленные', 'Колесница', 'Сила', 'Отшельник'];
+
+        const deckDiv = document.getElementById('deck');
+        cards.forEach(name => {
+            let card = document.createElement('div');
+            card.className = 'card';
+            card.innerText = '🃏';
+            card.onclick = () => {
+                if (selected.includes(name)) {
+                    selected = selected.filter(c => c !== name);
+                    card.classList.remove('selected');
+                } else if (selected.length < 3) {
+                    selected.push(name);
+                    card.classList.add('selected');
+                }
+            };
+            deckDiv.appendChild(card);
+        });
+
+        function sendResult() {
+            let q = document.getElementById('question').value;
+            if (!q || selected.length < 3) {
+                alert("Введите вопрос и выберите 3 карты!");
+                return;
+            }
+            tg.sendData(JSON.stringify({question: q, cards: selected}));
+            tg.close();
+        }
+    </script>
+</body>
+</html>
